@@ -1,5 +1,5 @@
 const DEFAULT_BACKEND_URL =
-  "https://1d56e315-e021-4160-b6d7-542d860b1993-00-1si7u76y14hjv.kira.replit.dev/";
+  "https://b40cf1b2-011e-4a03-ae0b-efdf4e7b2447-00-j4vt3ckq1dfg.archer.replit.dev/";
 
 export async function proxyBackend(req, res, backendPath) {
   if (req.method !== "GET") {
