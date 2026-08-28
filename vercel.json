@@ -2,11 +2,11 @@
   "rewrites": [
     {
       "source": "/",
-      "destination": "/home/index.html"
+      "destination": "/index.html"
     },
     {
       "source": "/backend/:path*",
-      "destination": "https://658d2910-6dff-4954-ad09-42675e7bb468-00-3pnscb3bkguf2.kira.replit.dev/:path*"
+      "destination": "https://1d56e315-e021-4160-b6d7-542d860b1993-00-1si7u76y14hjv.kira.replit.dev/:path*"
     }
   ],
   "headers": [
