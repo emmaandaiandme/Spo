@@ -3,215 +3,156 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#0d0f12" />
+    <meta name="theme-color" content="#0f1411" />
     <meta
       name="description"
-      content="Browse your Spotify profile and playlists through Discord-style collections."
+      content="A simple Spotify profile and playlist dashboard."
     />
-    <title>Spotify Collections</title>
+    <title>Spotify Bot</title>
     <style>
       :root {
         color-scheme: dark;
-        --page: #0d0f12;
-        --surface: #17191d;
-        --surface-2: #202329;
-        --surface-3: #2b2f36;
-        --line: rgba(255, 255, 255, 0.1);
-        --text: #f2f3f5;
-        --muted: #a6aab2;
+        --page: #0f1411;
+        --panel: #171e19;
+        --panel-strong: #1d2720;
+        --line: rgba(255, 255, 255, .1);
+        --text: #f5f7f5;
+        --muted: #aab5ad;
         --green: #1ed760;
-        --green-soft: #85e8a5;
-        --danger: #ff7a87;
+        --green-hover: #72f19a;
+        --danger: #ff8585;
       }
 
       * { box-sizing: border-box; }
       html { min-width: 320px; background: var(--page); }
       body {
-        margin: 0;
         min-height: 100vh;
+        margin: 0;
         color: var(--text);
         background:
-          radial-gradient(circle at 80% -10%, rgba(30, 215, 96, 0.17), transparent 34rem),
-          linear-gradient(180deg, #111419 0%, var(--page) 55%);
+          radial-gradient(circle at 78% -8%, rgba(30, 215, 96, .16), transparent 31rem),
+          var(--page);
         font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       }
       button, a { font: inherit; }
       button { border: 0; cursor: pointer; }
-      a { color: var(--green-soft); }
-      .shell { width: min(1060px, calc(100% - 32px)); margin: 0 auto; padding: 24px 0 56px; }
-      .topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 46px; }
-      .brand { display: flex; align-items: center; gap: 11px; font-weight: 750; letter-spacing: -0.02em; }
+      a { color: var(--green-hover); }
+      .shell { width: min(900px, calc(100% - 32px)); margin: 0 auto; padding: 25px 0 50px; }
+      .topbar { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+      .brand { display: inline-flex; align-items: center; gap: 10px; color: var(--text); font-size: 16px; font-weight: 800; letter-spacing: -.02em; }
       .brand-mark {
-        display: grid; place-items: center; width: 36px; height: 36px;
+        display: grid; place-items: center; width: 34px; height: 34px;
         border-radius: 50%; color: #07100a; background: var(--green);
-        font-size: 18px; font-weight: 900;
+        font-size: 17px; font-weight: 950;
       }
-      .online { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13px; }
-      .online::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 12px var(--green); }
-      .hero { max-width: 760px; margin-bottom: 32px; }
-      .eyebrow { margin: 0 0 10px; color: var(--green-soft); font-size: 12px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
-      h1 { margin: 0; font-size: clamp(38px, 7vw, 68px); line-height: 1; letter-spacing: -.06em; }
-      .intro { max-width: 620px; margin: 18px 0 22px; color: var(--muted); font-size: 17px; line-height: 1.55; }
+      .logout {
+        padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px;
+        color: var(--muted); background: transparent; font-size: 12px; font-weight: 700;
+      }
+      .logout:hover { color: var(--text); background: var(--panel); }
+      .hero { max-width: 650px; padding: 92px 0 48px; }
+      .eyebrow { margin: 0 0 13px; color: var(--green); font-size: 11px; font-weight: 850; letter-spacing: .16em; text-transform: uppercase; }
+      h1 { max-width: 620px; margin: 0; font-size: clamp(38px, 7vw, 64px); line-height: .98; letter-spacing: -.065em; }
+      .intro { max-width: 520px; margin: 20px 0 24px; color: var(--muted); font-size: 16px; line-height: 1.55; }
       .primary {
-        display: inline-flex; align-items: center; gap: 10px; padding: 12px 18px;
-        border-radius: 8px; color: #061109; background: var(--green); font-weight: 800;
-        transition: transform .18s ease, background .18s ease;
+        display: inline-flex; align-items: center; gap: 10px; padding: 12px 17px;
+        border-radius: 9px; color: #061109; background: var(--green); font-weight: 850;
+        transition: background .15s ease, transform .15s ease;
       }
-      .primary:hover { transform: translateY(-1px); background: #6ff29a; }
+      .primary:hover { background: var(--green-hover); transform: translateY(-1px); }
       .primary:disabled { cursor: wait; opacity: .65; transform: none; }
-      .notice { min-height: 22px; margin: 13px 0 0; color: var(--muted); font-size: 13px; }
-      .notice.error { color: var(--danger); }
-      .cards { display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); gap: 16px; }
-      .card {
-        min-width: 0; padding: 20px; border: 1px solid var(--line); border-radius: 12px;
-        background: rgba(23, 25, 29, .92); box-shadow: 0 18px 52px rgba(0, 0, 0, .22);
+      .status { min-height: 20px; margin: 13px 0 0; color: var(--muted); font-size: 13px; }
+      .status.error { color: var(--danger); }
+      .commands {
+        display: flex; flex-wrap: wrap; gap: 7px; margin-top: 26px;
+        color: var(--muted); font-size: 12px;
       }
-      .card.full { grid-column: 1 / -1; }
-      .card-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
-      h2 { margin: 0; font-size: 17px; letter-spacing: -.02em; }
-      .label { color: var(--muted); font-size: 12px; }
-      .profile { display: flex; align-items: center; gap: 15px; min-height: 100px; }
-      .avatar, .bot-avatar { flex: none; width: 72px; height: 72px; border-radius: 50%; object-fit: cover; background: var(--surface-3); }
-      .avatar-fallback { display: grid; place-items: center; color: var(--green-soft); font-size: 24px; font-weight: 800; }
-      .profile-name { margin: 0 0 7px; font-size: 23px; }
-      .detail { margin: 4px 0; color: var(--muted); font-size: 13px; }
-      .empty { color: var(--muted); line-height: 1.55; }
-      .track { display: grid; grid-template-columns: 68px 1fr; align-items: center; gap: 14px; min-height: 100px; }
-      .cover { width: 68px; height: 68px; border-radius: 8px; object-fit: cover; background: var(--surface-3); }
-      .track-title { margin: 0 0 5px; font-size: 17px; }
-      .track-meta { margin: 0; color: var(--muted); font-size: 13px; }
-      .progress { height: 4px; margin-top: 15px; overflow: hidden; border-radius: 9px; background: var(--surface-3); }
-      .progress-fill { height: 100%; border-radius: inherit; background: var(--green); }
-      .bot-line { display: flex; align-items: center; gap: 9px; margin-bottom: 13px; color: var(--muted); font-size: 12px; }
-      .bot-avatar { width: 30px; height: 30px; display: grid; place-items: center; color: #07100a; background: var(--green); font-size: 14px; font-weight: 900; }
-      .app-tag { padding: 3px 6px; border-radius: 4px; color: #d8ffe2; background: rgba(30, 215, 96, .16); font-weight: 750; }
-      .collection { padding: 17px; border: 1px solid var(--line); border-radius: 9px; background: rgba(13, 15, 18, .45); }
-      .collection-title { margin: 0; font-size: 16px; }
-      .collection-rule { height: 1px; margin: 13px 0; background: var(--line); }
-      .collection-summary { margin: 0 0 11px; color: var(--muted); font-size: 13px; }
+      .command { padding: 6px 9px; border: 1px solid var(--line); border-radius: 6px; background: rgba(255,255,255,.035); }
+      .dashboard { display: none; padding-bottom: 32px; }
+      .dashboard.visible { display: block; }
+      .dashboard-heading { display: flex; align-items: end; justify-content: space-between; gap: 16px; margin: 0 0 14px; }
+      h2 { margin: 0; font-size: 19px; letter-spacing: -.03em; }
+      .dashboard-heading p { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
+      .dashboard-grid { display: grid; grid-template-columns: minmax(230px, .72fr) minmax(0, 1.28fr); gap: 14px; }
+      .card { min-width: 0; padding: 19px; border: 1px solid var(--line); border-radius: 13px; background: rgba(23, 30, 25, .92); }
+      .card h3 { margin: 0; font-size: 15px; }
+      .card-label { margin: 0 0 16px; color: var(--muted); font-size: 11px; font-weight: 750; letter-spacing: .08em; text-transform: uppercase; }
+      .profile { display: flex; align-items: center; gap: 13px; min-height: 84px; }
+      .avatar { display: grid; place-items: center; flex: none; width: 62px; height: 62px; border-radius: 50%; object-fit: cover; color: #07200e; background: var(--green); font-size: 21px; font-weight: 850; }
+      .profile-name { margin: 0 0 5px; font-size: 20px; letter-spacing: -.04em; }
+      .detail { margin: 4px 0; color: var(--muted); font-size: 12px; }
+      .profile-link { display: inline-block; margin-top: 4px; font-size: 12px; }
       .playlist-list { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
       .playlist-row {
-        display: grid; grid-template-columns: 27px 1fr auto; align-items: center; gap: 9px;
-        padding: 9px; border-radius: 6px; background: rgba(255, 255, 255, .035);
+        display: grid; grid-template-columns: 27px minmax(0, 1fr) auto; align-items: center; gap: 8px;
+        padding: 10px; border-radius: 8px; background: rgba(255,255,255,.04);
       }
-      .playlist-number { color: var(--muted); font-size: 12px; }
+      .playlist-number, .playlist-tracks { color: var(--muted); font-size: 11px; }
       .playlist-text { min-width: 0; }
-      .playlist-name { display: block; overflow: hidden; color: var(--text); font-size: 13px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
-      .playlist-owner { display: block; margin-top: 3px; overflow: hidden; color: var(--muted); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
-      .playlist-tracks { color: var(--muted); font-size: 11px; white-space: nowrap; }
-      .collection-actions { display: flex; align-items: center; gap: 10px; margin-top: 13px; }
-      .select-button, .pager button {
-        padding: 9px 12px; border: 1px solid var(--line); border-radius: 6px;
-        color: var(--text); background: var(--surface-2); font-size: 12px;
-      }
-      .select-button { flex: 1; display: flex; justify-content: space-between; text-align: left; }
-      .select-button:hover, .pager button:hover:not(:disabled) { background: var(--surface-3); }
-      .chevron { color: var(--muted); }
-      .pager { display: flex; gap: 6px; }
-      .pager button { min-width: 34px; color: var(--muted); }
-      .pager button:disabled { cursor: not-allowed; opacity: .38; }
-      .collection-foot { margin: 13px 0 0; color: var(--muted); font-size: 11px; }
-      footer { margin-top: 22px; color: #747983; font-size: 12px; }
-      .modal-backdrop { position: fixed; inset: 0; display: grid; place-items: center; padding: 20px; background: rgba(0, 0, 0, .7); }
-      .modal-backdrop[hidden] { display: none; }
-      .modal { width: min(520px, 100%); max-height: min(640px, 90vh); overflow: auto; padding: 25px 16px 16px; border-radius: 18px; background: #16181c; box-shadow: 0 20px 80px rgba(0, 0, 0, .5); }
-      .modal-handle { width: 34px; height: 4px; margin: -10px auto 18px; border-radius: 99px; background: #555960; }
-      .modal h2 { margin: 0 8px 16px; text-align: center; font-size: 17px; }
-      .modal-list { display: grid; gap: 8px; }
-      .modal-option { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; padding: 13px; border-radius: 10px; color: var(--text); background: #202227; text-align: left; }
-      .modal-option:hover, .modal-option:focus-visible { outline: 2px solid var(--green); background: #2a2d33; }
-      .modal-option strong { display: block; font-size: 14px; }
-      .modal-option span { display: block; margin-top: 4px; color: var(--muted); font-size: 11px; }
-      .modal-option b { color: var(--muted); font-size: 18px; font-weight: 400; }
-      .modal-close { display: block; margin: 16px auto 0; padding: 9px 17px; border-radius: 7px; color: var(--muted); background: transparent; font-size: 12px; }
-      .selected { margin: 0 8px 16px; padding: 13px; border-radius: 8px; background: rgba(30, 215, 96, .1); }
-      .selected strong { display: block; margin-bottom: 5px; }
-      .selected p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.45; }
-      @media (max-width: 700px) {
-        .shell { width: min(100% - 24px, 560px); padding-top: 16px; }
-        .topbar { margin-bottom: 38px; }
-        .online { display: none; }
-        .cards { grid-template-columns: 1fr; }
-        .card.full { grid-column: auto; }
-        h1 { font-size: 44px; }
-        .intro { font-size: 15px; }
-        .collection-actions { align-items: stretch; flex-direction: column; }
-        .pager { justify-content: flex-end; }
+      .playlist-name { display: block; overflow: hidden; color: var(--text); font-size: 13px; font-weight: 750; text-overflow: ellipsis; white-space: nowrap; }
+      .playlist-owner { display: block; overflow: hidden; margin-top: 3px; color: var(--muted); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+      .empty { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
+      .playlist-foot { margin: 14px 0 0; color: var(--muted); font-size: 11px; }
+      footer { padding-top: 17px; border-top: 1px solid var(--line); color: #78837b; font-size: 11px; line-height: 1.5; }
+      @media (max-width: 680px) {
+        .shell { width: min(100% - 24px, 520px); padding-top: 16px; }
+        .hero { padding: 70px 0 38px; }
+        .dashboard-grid { grid-template-columns: 1fr; }
+        .dashboard-heading { align-items: start; flex-direction: column; gap: 4px; }
       }
     </style>
   </head>
   <body>
     <main class="shell">
       <header class="topbar">
-        <div class="brand"><span class="brand-mark">S</span><span>Spotify Collections</span></div>
-        <div class="online">Public data sync</div>
+        <div class="brand"><span class="brand-mark">S</span><span>Spotify Bot</span></div>
+        <button class="logout" id="logout-button" type="button" hidden>Log out</button>
       </header>
 
       <section class="hero">
-        <p class="eyebrow">Discord companion</p>
-        <h1>Your music, ready to browse.</h1>
-        <p class="intro">Connect Spotify to view your profile, real playlists, and current track. The bot only receives the public account data needed for these commands.</p>
-        <button class="primary" id="login-button" type="button">Connect Spotify <span aria-hidden="true">→</span></button>
-        <p class="notice" id="notice" role="status" aria-live="polite"></p>
+        <p class="eyebrow">Simple Spotify access</p>
+        <h1>All your music, in one place.</h1>
+        <p class="intro">Log in with Spotify to see your profile and playlists. Nothing more, nothing complicated.</p>
+        <button class="primary" id="login-button" type="button">Login with Spotify <span aria-hidden="true">→</span></button>
+        <p class="status" id="status" role="status" aria-live="polite"></p>
+        <div class="commands" aria-label="Available commands">
+          <span class="command">/spotify login</span>
+          <span class="command">/spotify logout</span>
+          <span class="command">/spotify profile</span>
+          <span class="command">/spotify playlists</span>
+        </div>
       </section>
 
-      <section class="cards" aria-label="Spotify dashboard">
-        <article class="card" aria-labelledby="profile-heading">
-          <div class="card-heading"><h2 id="profile-heading">Spotify Profile</h2><span class="label">Account</span></div>
-          <div id="profile-content" class="empty">Connect Spotify to load your profile.</div>
-        </article>
-        <article class="card" aria-labelledby="now-heading">
-          <div class="card-heading"><h2 id="now-heading">Now Playing</h2><span class="label" id="now-time">Live</span></div>
-          <div id="now-content" class="empty">Your current track will appear here.</div>
-        </article>
-        <article class="card full" aria-labelledby="collections-heading">
-          <div class="bot-line"><span class="bot-avatar">N</span><span>Spotify Bot</span><span class="app-tag">spotify collections</span></div>
-          <div class="collection">
-            <h2 id="collections-heading" class="collection-title">Spotify Collections</h2>
-            <div class="collection-rule"></div>
-            <p class="collection-summary" id="collection-summary">Connect Spotify to browse your real playlists.</p>
-            <ol class="playlist-list" id="playlist-list"></ol>
-            <div class="collection-actions">
-              <button class="select-button" id="select-playlist" type="button">Select a playlist to play or queue <span class="chevron">›</span></button>
-              <div class="pager" aria-label="Playlist pages">
-                <button id="first-page" type="button" aria-label="First page">«</button>
-                <button id="previous-page" type="button" aria-label="Previous page">‹</button>
-                <button id="next-page" type="button" aria-label="Next page">›</button>
-                <button id="last-page" type="button" aria-label="Last page">»</button>
-              </div>
-            </div>
-            <p class="collection-foot" id="collection-foot">Page 1 of 1</p>
+      <section class="dashboard" id="dashboard" aria-labelledby="dashboard-heading">
+        <div class="dashboard-heading">
+          <div>
+            <h2 id="dashboard-heading">Your Spotify</h2>
+            <p>Profile and playlists are ready.</p>
           </div>
-        </article>
+        </div>
+        <div class="dashboard-grid">
+          <article class="card">
+            <p class="card-label">Profile</p>
+            <div id="profile-content"><p class="empty">Loading profile…</p></div>
+          </article>
+          <article class="card">
+            <p class="card-label">Playlists</p>
+            <div id="playlist-content"><p class="empty">Loading playlists…</p></div>
+          </article>
+        </div>
       </section>
-      <footer>Spotify data is requested only after you choose to connect. Open <strong>/spotify collections</strong> in Discord for the same collection menu.</footer>
-    </main>
 
-    <div class="modal-backdrop" id="playlist-modal" hidden>
-      <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-heading">
-        <div class="modal-handle" aria-hidden="true"></div>
-        <h2 id="modal-heading">Select a playlist to play or queue</h2>
-        <div id="selected-playlist"></div>
-        <div class="modal-list" id="modal-list"></div>
-        <button class="modal-close" id="close-modal" type="button">Close</button>
-      </section>
-    </div>
+      <footer>Use the same four commands in Discord: login, logout, profile, and playlists.</footer>
+    </main>
 
     <script>
       const $ = (id) => document.getElementById(id);
       const loginButton = $("login-button");
-      const notice = $("notice");
+      const logoutButton = $("logout-button");
+      const status = $("status");
+      const dashboard = $("dashboard");
       const profileContent = $("profile-content");
-      const nowContent = $("now-content");
-      const playlistList = $("playlist-list");
-      const summary = $("collection-summary");
-      const foot = $("collection-foot");
-      const modal = $("playlist-modal");
-      const modalList = $("modal-list");
-      const selectedPlaylist = $("selected-playlist");
-      const pageSize = 10;
-      let playlistPage = { items: [], total: 0 };
-      let pageNumber = 0;
+      const playlistContent = $("playlist-content");
 
       function escapeHtml(value) {
         return String(value ?? "").replace(/[&<>"']/g, (character) => ({
@@ -219,23 +160,17 @@
         }[character]));
       }
 
-      function spotifyUrl(value) {
+      function safeUrl(value, hostname = null) {
         try {
           const url = new URL(value);
-          return url.protocol === "https:" && url.hostname === "open.spotify.com" ? escapeHtml(url.href) : "";
+          if (url.protocol !== "https:" || (hostname && url.hostname !== hostname)) return "";
+          return escapeHtml(url.href);
         } catch { return ""; }
       }
 
-      function imageUrl(value) {
-        try {
-          const url = new URL(value);
-          return url.protocol === "https:" ? escapeHtml(url.href) : "";
-        } catch { return ""; }
-      }
-
-      function setNotice(text, error = false) {
-        notice.textContent = text;
-        notice.className = `notice${error ? " error" : ""}`;
+      function setStatus(message, isError = false) {
+        status.textContent = message;
+        status.className = `status${isError ? " error" : ""}`;
       }
 
       async function api(path) {
@@ -254,91 +189,106 @@
       }
 
       function renderProfile(profile) {
-        const image = imageUrl(profile.images?.[0]?.url);
-        const link = spotifyUrl(profile.external_urls?.spotify);
+        const image = safeUrl(profile.images?.[0]?.url);
+        const link = safeUrl(profile.external_urls?.spotify, "open.spotify.com");
         profileContent.innerHTML = `
           <div class="profile">
-            ${image ? `<img class="avatar" src="${image}" alt="">` : `<div class="avatar avatar-fallback">${escapeHtml(initials(profile.display_name))}</div>`}
+            ${image ? `<img class="avatar" src="${image}" alt="">` : `<div class="avatar">${escapeHtml(initials(profile.display_name))}</div>`}
             <div>
               <h3 class="profile-name">${escapeHtml(profile.display_name || profile.id)}</h3>
-              <p class="detail">Spotify ID: <strong>${escapeHtml(profile.id)}</strong></p>
-              <p class="detail">Followers: ${escapeHtml(profile.followers?.total || 0)}</p>
-              ${link ? `<a class="detail" href="${link}" target="_blank" rel="noreferrer">Open Spotify profile ↗</a>` : ""}
-            </div>
-          </div>`;
-      }
-
-      function renderNowPlaying(current) {
-        const track = current?.item;
-        if (!track) {
-          nowContent.innerHTML = '<p class="empty">Nothing is playing on Spotify right now.</p>';
-          return;
-        }
-        const cover = imageUrl(track.album?.images?.[0]?.url);
-        const link = spotifyUrl(track.external_urls?.spotify);
-        const progress = Math.min(100, Math.max(0, ((current.progress_ms || 0) / (track.duration_ms || 1)) * 100));
-        nowContent.innerHTML = `
-          <div class="track">
-            ${cover ? `<img class="cover" src="${cover}" alt="">` : '<div class="cover"></div>'}
-            <div>
-              <h3 class="track-title">${link ? `<a href="${link}" target="_blank" rel="noreferrer">${escapeHtml(track.name)}</a>` : escapeHtml(track.name)}</h3>
-              <p class="track-meta">${escapeHtml(track.artists?.map((artist) => artist.name).join(", ") || "Unknown artist")}</p>
-              <div class="progress" aria-label="Track progress"><div class="progress-fill" style="width:${progress}%"></div></div>
+              <p class="detail">${escapeHtml(profile.followers?.total || 0)} followers</p>
+              ${link ? `<a class="profile-link" href="${link}" target="_blank" rel="noreferrer">Open Spotify ↗</a>` : ""}
             </div>
           </div>`;
       }
 
       function renderPlaylists(page) {
-        playlistPage = page || { items: [], total: 0 };
-        const items = playlistPage.items || [];
-        const totalPages = Math.max(1, Math.ceil((playlistPage.total || 0) / pageSize));
-        pageNumber = Math.min(pageNumber, totalPages - 1);
-        summary.textContent = `${playlistPage.total || 0} public playlist${playlistPage.total === 1 ? "" : "s"} ready to browse.`;
-        playlistList.innerHTML = items.length ? items.map((playlist, index) => {
-          const link = spotifyUrl(playlist.external_urls?.spotify);
-          return `<li class="playlist-row">
-            <span class="playlist-number">${pageNumber * pageSize + index + 1}.</span>
-            <span class="playlist-text">
-              ${link ? `<a class="playlist-name" href="${link}" target="_blank" rel="noreferrer">${escapeHtml(playlist.name || "Untitled playlist")}</a>` : `<span class="playlist-name">${escapeHtml(playlist.name || "Untitled playlist")}</span>`}
-              <span class="playlist-owner">Owner: ${escapeHtml(playlist.owner?.display_name || "Unknown owner")}</span>
-            </span>
-            <span class="playlist-tracks">${escapeHtml(playlist.tracks?.total || 0)} tracks</span>
-          </li>`;
-        }).join("") : '<li class="empty">No playlists found on this Spotify account.</li>';
-        foot.textContent = `Page ${pageNumber + 1} of ${totalPages} · Selecting a playlist opens Spotify so you can play or queue its tracks.`;
-        $("first-page").disabled = pageNumber === 0;
-        $("previous-page").disabled = pageNumber === 0;
-        $("next-page").disabled = pageNumber >= totalPages - 1;
-        $("last-page").disabled = pageNumber >= totalPages - 1;
+        const items = page.items || [];
+        const total = page.total || 0;
+        playlistContent.innerHTML = items.length
+          ? `<ul class="playlist-list">${items.map((playlist, index) => {
+              const link = safeUrl(playlist.external_urls?.spotify, "open.spotify.com");
+              const name = escapeHtml(playlist.name || "Untitled playlist");
+              return `<li class="playlist-row">
+                <span class="playlist-number">${index + 1}.</span>
+                <span class="playlist-text">${link ? `<a class="playlist-name" href="${link}" target="_blank" rel="noreferrer">${name}</a>` : `<span class="playlist-name">${name}</span>`}
+                  <span class="playlist-owner">${escapeHtml(playlist.owner?.display_name || "Spotify")} · ${escapeHtml(playlist.tracks?.total || 0)} tracks</span>
+                </span>
+                <span class="playlist-tracks">Open ↗</span>
+              </li>`;
+            }).join("")}</ul>
+            <p class="playlist-foot">${total} playlist${total === 1 ? "" : "s"} total</p>`
+          : '<p class="empty">No playlists found on this Spotify account.</p>';
       }
 
-      async function loadPlaylistPage(nextPage) {
-        pageNumber = Math.max(0, nextPage);
+      function showConnected() {
+        dashboard.classList.add("visible");
+        logoutButton.hidden = false;
+        loginButton.hidden = true;
+      }
+
+      function showLoggedOut() {
+        dashboard.classList.remove("visible");
+        logoutButton.hidden = true;
+        loginButton.hidden = false;
+        loginButton.disabled = false;
+        loginButton.innerHTML = 'Login with Spotify <span aria-hidden="true">→</span>';
+        profileContent.innerHTML = '<p class="empty">Log in to load your profile.</p>';
+        playlistContent.innerHTML = '<p class="empty">Log in to load your playlists.</p>';
+      }
+
+      async function loadDashboard() {
         try {
-          renderPlaylists(await api(`/api/playlist?limit=${pageSize}&offset=${pageNumber * pageSize}`));
+          const [profile, playlists] = await Promise.all([
+            api("/api/profile"),
+            api("/api/playlist?limit=50&offset=0")
+          ]);
+          renderProfile(profile);
+          renderPlaylists(playlists);
+          showConnected();
+          if (new URLSearchParams(window.location.search).get("connected") === "1") {
+            setStatus("Spotify connected successfully.");
+            window.history.replaceState({}, "", window.location.pathname);
+          } else {
+            setStatus("Spotify is connected.");
+          }
         } catch (error) {
-          if (error.status === 401) setNotice("Connect Spotify to browse your collections.");
-          else setNotice(error.message, true);
+          showLoggedOut();
+          if (error.status === 401) setStatus("Log in with Spotify to get started.");
+          else setStatus(error.message, true);
         }
       }
 
-      function openModal() {
-        const items = playlistPage.items || [];
-        selectedPlaylist.innerHTML = "";
-        modalList.innerHTML = items.length ? items.map((playlist) => `
-          <button class="modal-option" type="button" data-playlist-id="${escapeHtml(playlist.id)}">
-            <span><strong>${escapeHtml(playlist.name || "Untitled playlist")}</strong><span>${escapeHtml(playlist.owner?.display_name || "Unknown owner")} | ${escapeHtml(playlist.tracks?.total || 0)} tracks</span></span><b>›</b>
-          </button>`).join("") : '<p class="empty">No playlists are available on this page.</p>';
-        modal.hidden = false;
-        modal.querySelector(".modal-option")?.focus();
-      }
+      loginButton.addEventListener("click", async () => {
+        loginButton.disabled = true;
+        loginButton.textContent = "Opening Spotify…";
+        setStatus("Redirecting you to Spotify securely.");
+        try {
+          const { authUrl } = await api("/api/login");
+          if (!authUrl) throw new Error("Spotify login is unavailable.");
+          window.location.assign(authUrl);
+        } catch (error) {
+          setStatus(error.message, true);
+          loginButton.disabled = false;
+          loginButton.innerHTML = 'Login with Spotify <span aria-hidden="true">→</span>';
+        }
+      });
 
-      function closeModal() { modal.hidden = true; }
+      logoutButton.addEventListener("click", async () => {
+        logoutButton.disabled = true;
+        try {
+          await api("/api/logout");
+          showLoggedOut();
+          setStatus("You have been logged out.");
+        } catch (error) {
+          setStatus(error.message, true);
+        } finally {
+          logoutButton.disabled = false;
+        }
+      });
 
-      modalList.addEventListener("click", (event) => {
-        const button = event.target.closest("[data-playlist-id]");
-        if (!button) return;
-        const playlist = playlistPage.items.find((item) => item.id === button.dataset.playlistId);
-        if (!playlist) return;
-        const link = spotifyUrl(playlist.external_urls?.spotify);
-        selectedPlaylist.innerHTML = `<div class="selected"><strong>${escapeHtml(playlist.name || "Untitl
+      showLoggedOut();
+      loadDashboard();
+    </script>
+  </body>
+</html>
