@@ -1,0 +1,23 @@
+{
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/home/index.html"
+    },
+    {
+      "source": "/backend/:path*",
+      "destination": "https://658d2910-6dff-4954-ad09-42675e7bb468-00-3pnscb3bkguf2.kira.replit.dev/:path*"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        }
+      ]
+    }
+  ]
+}
