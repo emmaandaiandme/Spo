@@ -2,7 +2,31 @@
   "rewrites": [
     {
       "source": "/",
+      "has": [
+        {
+          "type": "query",
+          "key": "code"
+        }
+      ],
+      "destination": "https://1d56e315-e021-4160-b6d7-542d860b1993-00-1si7u76y14hjv.kira.replit.dev/"
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "query",
+          "key": "error"
+        }
+      ],
+      "destination": "https://1d56e315-e021-4160-b6d7-542d860b1993-00-1si7u76y14hjv.kira.replit.dev/"
+    },
+    {
+      "source": "/",
       "destination": "/index.html"
+    },
+    {
+      "source": "/callback",
+      "destination": "https://1d56e315-e021-4160-b6d7-542d860b1993-00-1si7u76y14hjv.kira.replit.dev/callback"
     },
     {
       "source": "/backend/:path*",
